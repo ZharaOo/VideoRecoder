@@ -7,11 +7,27 @@
 //
 
 import UIKit
+import Photos
 
 class CameraData: NSObject {
     var tempPath: String
+    var tempURL: URL {
+        return URL(fileURLWithPath: tempPath)
+    }
     
     override init() {
         tempPath = String(format: "%@/%@.mov", NSTemporaryDirectory(), UUID.init().uuidString)
+    }
+    
+    func saveVideoToLibrary() {
+        if FileManager.default.fileExists(atPath: tempPath) {
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.tempURL)
+            }) { saved, error in
+                if saved {
+                    print("saved")
+                }
+            }
+        }
     }
 }

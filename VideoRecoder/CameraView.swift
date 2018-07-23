@@ -13,6 +13,7 @@ class CameraView: UIView {
 
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var bottomView: UIView!
+    @IBOutlet weak var timeLabel: UILabel!
     
     var videoPreviewLayer: AVCaptureVideoPreviewLayer!
     var controller: CameraController!
@@ -36,6 +37,11 @@ class CameraView: UIView {
         self.bringSubview(toFront: bottomView)
         
         controller.runCamera()
+    }
+    
+    @IBAction func startStopRecording(_ sender: Any) {
+        
+        timeLabel.text = "00:00"
     }
     
 }

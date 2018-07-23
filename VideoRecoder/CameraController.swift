@@ -9,8 +9,10 @@
 import UIKit
 import AVKit
 
-class CameraController: NSObject {
+class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     var captureSession: AVCaptureSession!
+    var movieOutputFile: AVCaptureMovieFileOutput!
+    var cameraData: CameraData!
     
     override init() {
         super.init()
@@ -20,11 +22,19 @@ class CameraController: NSObject {
             if captureSession.canSetSessionPreset(.hd1280x720) {
                 captureSession.sessionPreset = .hd1280x720
             }
+            
+            self.movieOutputFile = mFileOutput
         }
     }
     
     func runCamera() {
         captureSession.startRunning()
+    }
+    
+    //MARK: - AVCaptureFileOutputRecordingDelegate
+    
+    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        
     }
     
     //MARK: - prepare camera methods
@@ -77,5 +87,16 @@ class CameraController: NSObject {
         movieFileOutput.minFreeDiskSpaceLimit = 1024 * 1024
         
         return (videoDeviceInput, audioDeviceInput, movieFileOutput)
+    }
+    
+    //MARK: - RecordingMethods
+    
+    func startRecording() {
+        cameraData = CameraData()
+        movieOutputFile.startRecording(to: cameraData.tempURL, recordingDelegate: self)
+    }
+    
+    func stopRecording() {
+        movieOutputFile.stopRecording()
     }
 }

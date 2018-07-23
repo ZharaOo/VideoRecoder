@@ -17,6 +17,7 @@
 		DF8461E3210665BE00630E5F /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8461E2210665BE00630E5F /* CameraView.swift */; };
 		DF8461E521066A4300630E5F /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8461E421066A4300630E5F /* CameraController.swift */; };
 		DF8461E721066B8000630E5F /* CameraData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8461E621066B8000630E5F /* CameraData.swift */; };
+		DF8461E921066FEF00630E5F /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF8461E821066FEF00630E5F /* Time.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		DF8461E2210665BE00630E5F /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		DF8461E421066A4300630E5F /* CameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
 		DF8461E621066B8000630E5F /* CameraData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraData.swift; sourceTree = "<group>"; };
+		DF8461E821066FEF00630E5F /* Time.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				DF8461CB2106530500630E5F /* AppDelegate.swift */,
 				DF8461CD2106530500630E5F /* VideoViewController.swift */,
 				DF8461E2210665BE00630E5F /* CameraView.swift */,
+				DF8461E821066FEF00630E5F /* Time.swift */,
 				DF8461E421066A4300630E5F /* CameraController.swift */,
 				DF8461E621066B8000630E5F /* CameraData.swift */,
 				DF8461CF2106530500630E5F /* Main.storyboard */,
@@ -160,6 +163,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF8461E921066FEF00630E5F /* Time.swift in Sources */,
 				DF8461E3210665BE00630E5F /* CameraView.swift in Sources */,
 				DF8461E721066B8000630E5F /* CameraData.swift in Sources */,
 				DF8461CE2106530500630E5F /* VideoViewController.swift in Sources */,
