@@ -44,20 +44,34 @@ class ColumnFlowLayout: UICollectionViewFlowLayout {
     
 }
 
+class VideoCollectionViewCell: UICollectionViewCell {
+    @IBOutlet weak var imageView: UIImageView!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        imageView.contentMode = .scaleAspectFill
+    }
+}
+
 class VideosCollectionViewController: UICollectionViewController {
 
+    var data = CameraData.getAllVideosDerictories()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
         self.collectionView!.collectionViewLayout = ColumnFlowLayout(
-            cellsPerRow: 5,
+            cellsPerRow: 2,
             minimumInteritemSpacing: 10,
             minimumLineSpacing: 10,
             sectionInset: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: false)
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -72,20 +86,22 @@ class VideosCollectionViewController: UICollectionViewController {
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
-        return 0
+        return data.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
-        // Configure the cell
-    
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! VideoCollectionViewCell
+        
+        if let d = try? Data.init(contentsOf: data[indexPath.row].appendingPathComponent("preview.png")) {
+            cell.imageView.image = UIImage(data: d)
+        }
+        
         return cell
     }
 

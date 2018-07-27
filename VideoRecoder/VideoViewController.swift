@@ -38,6 +38,7 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
         setupCameraLayer(with: self.view.frame.size)
         
         if let url = CameraData.getLastVideoDirectory() {

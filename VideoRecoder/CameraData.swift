@@ -97,6 +97,16 @@ class CameraData: NSObject {
         }
     }
     
+    class func getAllVideosDerictories() -> [URL] {
+        var urls = [URL]()
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        let videosNames = try? FileManager.default.contentsOfDirectory(atPath: documentsPath)
+        
+        videosNames?.forEach() { urls.append(URL(fileURLWithPath: documentsPath).appendingPathComponent($0)) }
+        
+        return urls
+    }
+    
     class func getLastVideoNumber(in directory: String) -> Int? {
         
         let videosNames = try? FileManager.default.contentsOfDirectory(atPath: directory)
