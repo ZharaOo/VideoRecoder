@@ -23,29 +23,62 @@ class CameraData: NSObject {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
         var videosNames = try? FileManager.default.contentsOfDirectory(atPath: documentsPath)
         
+        var videoName: String
+        
         if videosNames != nil && videosNames!.count > 0 {
-            videosNames = videosNames!.sorted(by: >)
+            videosNames = videosNames!.sorted(by: <)
             let lastName = videosNames!.last
             let ln = lastName!.split(separator: "_")
             let numberOfVideo = NumberFormatter().number(from: String(ln.last!))!.intValue
-            do {
-                try FileManager.default.createDirectory(at: URL(fileURLWithPath: documentsPath).appendingPathComponent("movie_\(numberOfVideo + 1)"), withIntermediateDirectories: false, attributes: nil)
-                try FileManager.default.copyItem(at: tempURL, to: URL(fileURLWithPath: documentsPath).appendingPathComponent("movie_\(numberOfVideo + 1)").appendingPathComponent("movie_\(numberOfVideo + 1).mov"))
-            }
-            catch {
-                throw error
-            }
             
-            try? FileManager.default.removeItem(at: tempURL)
+            videoName = "movie_\(numberOfVideo + 1)"
         }
         else {
-            do {
-                try FileManager.default.createDirectory(at: URL(fileURLWithPath: documentsPath).appendingPathComponent("movie_1"), withIntermediateDirectories: false, attributes: nil)
-                try FileManager.default.copyItem(at: tempURL, to: URL(fileURLWithPath: documentsPath).appendingPathComponent("movie_1").appendingPathComponent("movie_1.mov"))
-            }
-            catch {
-                throw error
-            }
+            videoName = "movie_1"
+        }
+        
+        do {
+            try saveVideo(named: videoName, to: documentsPath)
+        }
+        catch {
+            try? FileManager.default.removeItem(at: tempURL)
+            throw error
+        }
+    }
+    
+    func saveVideo(named name:String, to directory: String) throws {
+        let dUrl = URL(fileURLWithPath: directory).appendingPathComponent(name)
+        let vUrl = dUrl.appendingPathComponent("\(name).mov")
+        
+        do {
+            try FileManager.default.createDirectory(at: dUrl, withIntermediateDirectories: false, attributes: nil)
+            try FileManager.default.copyItem(at: tempURL, to: vUrl)
+        }
+        catch {
+            throw error
+        }
+        
+        try? FileManager.default.removeItem(at: tempURL)
+        
+        if let preview = try fetchFirstFrameOf(videoURL: vUrl) {
+            let data = UIImagePNGRepresentation(preview)
+            try data?.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name).appendingPathComponent("\(name).png"))
+        }
+    }
+    
+    func fetchFirstFrameOf(videoURL url: URL) throws -> UIImage? {
+        let asset = AVURLAsset(url: url, options: nil)
+        let imgGenerator = AVAssetImageGenerator(asset: asset)
+        imgGenerator.appliesPreferredTrackTransform = true
+        
+        do {
+            let cgImage = try imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+            let thumbnail = UIImage(cgImage: cgImage)
+            
+            return thumbnail
+            
+        } catch let error {
+            throw error
         }
     }
     

@@ -12,11 +12,49 @@ import MobileCoreServices
 
 class VideoViewController: UIViewController, CameraControllerDelegate {
     
+    @IBOutlet weak var topView: UIView!
+    @IBOutlet weak var bottomView: UIView!
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var startStopButton: UIButton!
     
-    @IBOutlet weak var cameraView: CameraView!
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer!
+    var controller: CameraController!
+    
+    
+    //MARK: - lifecycle
+    
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        controller = CameraController()
+        controller.delegate = self
+        
+        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: controller.captureSession)
+        videoPreviewLayer.videoGravity = .resizeAspectFill
+        
+        topView.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5)
+        bottomView.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let helpCamView = UIView(frame: self.view.bounds)
+        videoPreviewLayer.frame = self.view.bounds
+        helpCamView.layer.addSublayer(videoPreviewLayer)
+        self.view.addSubview(helpCamView)
+        self.view.sendSubview(toBack: helpCamView)
+        
+        controller.runCamera()
+    }
+    
+    
+    //MARK: - CameraControllerDelegate methods
+    
     
     func updateTimeLabel(with time: Time) {
-        cameraView.timeLabel.text = time.description()
+        timeLabel.text = time.description()
     }
     
     func cameraController(_ controller: CameraController, didFinishRecordingTo outputFileURL: URL, error: Error?) {
@@ -37,11 +75,20 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
         present(alertController, animated: true, completion: nil)
     }
     
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        cameraView.controller.delegate = self
+    
+    //MARK: - IBActions
+    
+    
+    @IBAction func startStopRecording(_ sender: Any) {
+        timeLabel.text = "00:00"
+        if !controller.isRecording {
+            startStopButton.setTitle("Stop", for: .normal)
+            controller.startRecording()
+        }
+        else {
+            startStopButton.setTitle("Start", for: .normal)
+            controller.stopRecording()
+        }
     }
-
 }
 
