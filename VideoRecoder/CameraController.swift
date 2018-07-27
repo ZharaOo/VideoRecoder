@@ -9,10 +9,22 @@
 import UIKit
 import AVKit
 
+protocol CameraControllerDelegate: class {
+    func cameraController(_ controller: CameraController, didFinishRecordingTo outputFileURL: URL, error: Error?)
+    func cameraController(_ controller: CameraController, didFailRecordingWithError error: Error?)
+    func updateTimeLabel(with time: Time)
+}
+
 class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     var captureSession: AVCaptureSession!
     var movieOutputFile: AVCaptureMovieFileOutput!
     var cameraData: CameraData!
+    var isRecording = false
+    
+    var time: Time?
+    var timer: Timer?
+    
+    weak var delegate: CameraControllerDelegate?
     
     override init() {
         super.init()
@@ -34,7 +46,21 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     //MARK: - AVCaptureFileOutputRecordingDelegate
     
     func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+        if FileManager.default.fileExists(atPath: cameraData.tempPath) {
+            do {
+                try cameraData.saveVideoLocaly()
+            }
+            catch {
+                delegate?.cameraController(self, didFailRecordingWithError: error)
+            }
+            
+            delegate?.cameraController(self, didFinishRecordingTo: cameraData.tempURL, error: error)
+        }
+        else {
+            delegate?.cameraController(self, didFailRecordingWithError: error)
+        }
         
+        stopRecording()
     }
     
     //MARK: - prepare camera methods
@@ -94,9 +120,24 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     func startRecording() {
         cameraData = CameraData()
         movieOutputFile.startRecording(to: cameraData.tempURL, recordingDelegate: self)
+        isRecording = true
+        time = Time()
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerTick), userInfo: nil, repeats: true)
+    }
+    
+    @objc func timerTick() {
+        if let t = time {
+            t.increaseBySecond()
+            delegate?.updateTimeLabel(with: t)
+        }
     }
     
     func stopRecording() {
         movieOutputFile.stopRecording()
+        isRecording = false
+        
+        timer?.invalidate()
+        timer = nil
+        time = nil
     }
 }

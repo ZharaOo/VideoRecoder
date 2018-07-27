@@ -14,6 +14,7 @@ class CameraView: UIView {
     @IBOutlet weak var topView: UIView!
     @IBOutlet weak var bottomView: UIView!
     @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var startStopButton: UIButton!
     
     var videoPreviewLayer: AVCaptureVideoPreviewLayer!
     var controller: CameraController!
@@ -40,8 +41,15 @@ class CameraView: UIView {
     }
     
     @IBAction func startStopRecording(_ sender: Any) {
-        
         timeLabel.text = "00:00"
+        if !controller.isRecording {
+            startStopButton.titleLabel?.text = "Stop"
+            controller.startRecording()
+        }
+        else {
+            startStopButton.titleLabel?.text = "Start"
+            controller.stopRecording()
+        }
     }
     
 }

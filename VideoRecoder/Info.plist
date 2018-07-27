@@ -28,6 +28,8 @@
 	<string>Доступ к камере для съемки видео</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Доступ к микрофону для съемки видео</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
