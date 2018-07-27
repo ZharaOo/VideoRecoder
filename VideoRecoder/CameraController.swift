@@ -10,7 +10,7 @@ import UIKit
 import AVKit
 
 protocol CameraControllerDelegate: class {
-    func cameraController(_ controller: CameraController, didFinishRecordingTo outputFileURL: URL, error: Error?)
+    func cameraController(_ controller: CameraController, didFinishRecordingTo outputDirectoryURL: URL, error: Error?)
     func cameraController(_ controller: CameraController, didFailRecordingWithError error: Error?)
     func updateTimeLabel(with time: Time)
 }
@@ -48,13 +48,12 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     internal func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if FileManager.default.fileExists(atPath: cameraData.tempPath) {
             do {
-                try cameraData.saveVideoLocaly()
+                let dUrl = try cameraData.saveVideoLocaly()
+                delegate?.cameraController(self, didFinishRecordingTo: dUrl, error: error)
             }
             catch {
                 delegate?.cameraController(self, didFailRecordingWithError: error)
             }
-            
-            delegate?.cameraController(self, didFinishRecordingTo: cameraData.tempURL, error: error)
         }
         else {
             delegate?.cameraController(self, didFailRecordingWithError: error)

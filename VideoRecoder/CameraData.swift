@@ -19,26 +19,21 @@ class CameraData: NSObject {
         tempPath = String(format: "%@/%@.mov", NSTemporaryDirectory(), UUID.init().uuidString)
     }
     
-    func saveVideoLocaly() throws {
+    func saveVideoLocaly() throws -> URL {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-        var videosNames = try? FileManager.default.contentsOfDirectory(atPath: documentsPath)
         
         var videoName: String
         
-        if videosNames != nil && videosNames!.count > 0 {
-            videosNames = videosNames!.sorted(by: <)
-            let lastName = videosNames!.last
-            let ln = lastName!.split(separator: "_")
-            let numberOfVideo = NumberFormatter().number(from: String(ln.last!))!.intValue
-            
-            videoName = "movie_\(numberOfVideo + 1)"
+        if let lastVideoNumber = CameraData.getLastVideoNumber(in: documentsPath) {
+            videoName = "movie_\(lastVideoNumber + 1)"
         }
         else {
             videoName = "movie_1"
         }
         
         do {
-            try saveVideo(named: videoName, to: documentsPath)
+            let dUrl = try saveVideo(named: videoName, to: documentsPath)
+            return dUrl
         }
         catch {
             try? FileManager.default.removeItem(at: tempURL)
@@ -46,7 +41,7 @@ class CameraData: NSObject {
         }
     }
     
-    func saveVideo(named name:String, to directory: String) throws {
+    func saveVideo(named name:String, to directory: String) throws -> URL {
         let dUrl = URL(fileURLWithPath: directory).appendingPathComponent(name)
         let vUrl = dUrl.appendingPathComponent("\(name).mov")
         
@@ -62,8 +57,10 @@ class CameraData: NSObject {
         
         if let preview = try fetchFirstFrameOf(videoURL: vUrl) {
             let data = UIImagePNGRepresentation(preview)
-            try data?.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name).appendingPathComponent("\(name).png"))
+            try data?.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name).appendingPathComponent("preview.png"))
         }
+        
+        return dUrl
     }
     
     func fetchFirstFrameOf(videoURL url: URL) throws -> UIImage? {
@@ -82,6 +79,12 @@ class CameraData: NSObject {
         }
     }
     
+    
+    
+    
+    //MARK: - class methods
+    
+    
     class func saveVideoToLibrary(videoPath: String) {
         if FileManager.default.fileExists(atPath: videoPath) {
             PHPhotoLibrary.shared().performChanges({
@@ -92,5 +95,28 @@ class CameraData: NSObject {
                 }
             }
         }
+    }
+    
+    class func getLastVideoNumber(in directory: String) -> Int? {
+        
+        let videosNames = try? FileManager.default.contentsOfDirectory(atPath: directory)
+        
+        if videosNames != nil && videosNames!.count > 0 {
+            let lastName = videosNames!.last
+            let ln = lastName!.split(separator: "_")
+            return NumberFormatter().number(from: String(ln.last!))!.intValue
+        }
+        
+        return nil
+    }
+    
+    class func getLastVideoDirectory() -> URL? {
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+        
+        if let lastVideoNumber = getLastVideoNumber(in: documentsPath) {
+            return URL(fileURLWithPath: documentsPath).appendingPathComponent("movie_\(lastVideoNumber)")
+        }
+        
+        return nil
     }
 }

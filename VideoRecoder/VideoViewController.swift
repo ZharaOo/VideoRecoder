@@ -16,6 +16,7 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
     @IBOutlet weak var bottomView: UIView!
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var startStopButton: UIButton!
+    @IBOutlet weak var viewVideoButton: UIButton!
     
     var helpCamView: UIView?
     var videoPreviewLayer: AVCaptureVideoPreviewLayer!
@@ -38,12 +39,23 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupCameraLayer(with: self.view.frame.size)
+        
+        if let url = CameraData.getLastVideoDirectory() {
+            updatePreview(with: url)
+        }
     }
     
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         setupCameraLayer(with: size)
+    }
+    
+    func updatePreview(with url: URL) {
+        if let d = try? Data.init(contentsOf: url.appendingPathComponent("preview.png")) {
+            let preview = UIImage(data: d)
+            viewVideoButton.setBackgroundImage(preview, for: .normal)
+        }
     }
     
     
@@ -54,8 +66,8 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
         timeLabel.text = time.description()
     }
     
-    func cameraController(_ controller: CameraController, didFinishRecordingTo outputFileURL: URL, error: Error?) {
-        
+    func cameraController(_ controller: CameraController, didFinishRecordingTo outputDirectoryURL: URL, error: Error?) {
+        updatePreview(with: outputDirectoryURL)
     }
     
     func cameraController(_ controller: CameraController, didFailRecordingWithError error: Error?) {
