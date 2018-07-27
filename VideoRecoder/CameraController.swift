@@ -26,6 +26,10 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     weak var delegate: CameraControllerDelegate?
     
+    
+    //MARK: - initializator
+    
+    
     override init() {
         super.init()
         if let (vDeviceInput, aDeviceInput, mFileOutput) = prepareForSessionCreation() {
@@ -39,13 +43,9 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
-    func runCamera() {
-        captureSession.startRunning()
-    }
-    
     //MARK: - AVCaptureFileOutputRecordingDelegate
     
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+    internal func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if FileManager.default.fileExists(atPath: cameraData.tempPath) {
             do {
                 try cameraData.saveVideoLocaly()
@@ -63,7 +63,7 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         stopRecording()
     }
     
-    //MARK: - prepare camera methods
+    //MARK: - Prepare camera methods
     
     private func createCaptureSession(videoDeviceInput: AVCaptureDeviceInput, audioDeviceInput: AVCaptureDeviceInput, videoFileOutput: AVCaptureMovieFileOutput) -> AVCaptureSession? {
         let captureSession = AVCaptureSession()
@@ -115,29 +115,53 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         return (videoDeviceInput, audioDeviceInput, movieFileOutput)
     }
     
-    //MARK: - RecordingMethods
+    //MARK: - Recording Methods
+    
+    func runCamera() {
+        if !captureSession.isRunning {
+            captureSession.startRunning()
+        }
+    }
+    
+    func stopCamera()  {
+        if captureSession.isRunning {
+            captureSession.stopRunning()
+        }
+    }
     
     func startRecording() {
         cameraData = CameraData()
         movieOutputFile.startRecording(to: cameraData.tempURL, recordingDelegate: self)
         isRecording = true
+        startTimer()
+    }
+    
+    func stopRecording() {
+        movieOutputFile.stopRecording()
+        isRecording = false
+        stopTimer()
+    }
+    
+    
+    //MARK: - Timer methods
+    
+    
+    private func startTimer() {
         time = Time()
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(timerTick), userInfo: nil, repeats: true)
     }
     
-    @objc func timerTick() {
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+        time = nil
+    }
+    
+    @objc private func timerTick() {
         if let t = time {
             t.increaseBySecond()
             delegate?.updateTimeLabel(with: t)
         }
     }
     
-    func stopRecording() {
-        movieOutputFile.stopRecording()
-        isRecording = false
-        
-        timer?.invalidate()
-        timer = nil
-        time = nil
-    }
 }

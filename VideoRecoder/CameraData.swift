@@ -82,15 +82,15 @@ class CameraData: NSObject {
         }
     }
     
-//    func saveVideoToLibrary() {
-//        if FileManager.default.fileExists(atPath: tempPath) {
-//            PHPhotoLibrary.shared().performChanges({
-//                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: self.tempURL)
-//            }) { saved, error in
-//                if saved {
-//                    print("saved")
-//                }
-//            }
-//        }
-//    }
+    class func saveVideoToLibrary(videoPath: String) {
+        if FileManager.default.fileExists(atPath: videoPath) {
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL(fileURLWithPath: videoPath))
+            }) { saved, error in
+                if saved {
+                    print("saved")
+                }
+            }
+        }
+    }
 }

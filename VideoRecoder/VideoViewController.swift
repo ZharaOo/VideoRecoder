@@ -17,6 +17,7 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var startStopButton: UIButton!
     
+    var helpCamView: UIView?
     var videoPreviewLayer: AVCaptureVideoPreviewLayer!
     var controller: CameraController!
     
@@ -30,23 +31,19 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
         controller = CameraController()
         controller.delegate = self
         
-        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: controller.captureSession)
-        videoPreviewLayer.videoGravity = .resizeAspectFill
-        
         topView.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5)
         bottomView.backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.5)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let helpCamView = UIView(frame: self.view.bounds)
-        videoPreviewLayer.frame = self.view.bounds
-        helpCamView.layer.addSublayer(videoPreviewLayer)
-        self.view.addSubview(helpCamView)
-        self.view.sendSubview(toBack: helpCamView)
-        
-        controller.runCamera()
+        setupCameraLayer(with: self.view.frame.size)
+    }
+    
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        setupCameraLayer(with: size)
     }
     
     
@@ -90,5 +87,24 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
             controller.stopRecording()
         }
     }
+    
+    
+    //MARK: - Setup camera layer
+    
+    func setupCameraLayer(with size: CGSize) {
+        controller.stopCamera()
+        
+        videoPreviewLayer = AVCaptureVideoPreviewLayer(session: controller.captureSession)
+        videoPreviewLayer.frame = CGRect(x: self.view.bounds.minX, y: self.view.bounds.minY, width: size.width, height: size.height)
+        videoPreviewLayer.videoGravity = .resizeAspectFill
+        
+        helpCamView = UIView(frame: self.view.bounds)
+        helpCamView!.layer.addSublayer(videoPreviewLayer)
+        self.view.addSubview(helpCamView!)
+        self.view.sendSubview(toBack: helpCamView!)
+        
+        controller.runCamera()
+    }
+    
 }
 
