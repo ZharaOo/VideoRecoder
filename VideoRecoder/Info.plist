@@ -24,6 +24,8 @@
 	<string>Доступ к камере для съемки видео</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Доступ к микрофону для съемки видео</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Сохранение видосов</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

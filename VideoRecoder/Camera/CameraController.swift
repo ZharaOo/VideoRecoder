@@ -43,7 +43,9 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
+    
     //MARK: - AVCaptureFileOutputRecordingDelegate
+    
     
     internal func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         if FileManager.default.fileExists(atPath: cameraData.tempPath) {
@@ -62,7 +64,9 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         stopRecording()
     }
     
+    
     //MARK: - Prepare camera methods
+    
     
     private func createCaptureSession(videoDeviceInput: AVCaptureDeviceInput, audioDeviceInput: AVCaptureDeviceInput, videoFileOutput: AVCaptureMovieFileOutput) -> AVCaptureSession? {
         let captureSession = AVCaptureSession()
@@ -114,7 +118,9 @@ class CameraController: NSObject, AVCaptureFileOutputRecordingDelegate {
         return (videoDeviceInput, audioDeviceInput, movieFileOutput)
     }
     
+    
     //MARK: - Recording Methods
+    
     
     func runCamera() {
         if !captureSession.isRunning {

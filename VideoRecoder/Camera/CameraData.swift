@@ -129,4 +129,13 @@ class CameraData: NSObject {
         
         return nil
     }
+    
+    class func removeVideo(at url: URL) throws {
+        do {
+            try FileManager.default.removeItem(at: url)
+        }
+        catch {
+            throw error
+        }
+    }
 }

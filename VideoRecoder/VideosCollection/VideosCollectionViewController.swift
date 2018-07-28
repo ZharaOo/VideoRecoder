@@ -11,55 +11,21 @@ import AVKit
 
 private let reuseIdentifier = "Cell"
 
-class ColumnFlowLayout: UICollectionViewFlowLayout {
-    
-    let cellsPerRow: Int
-    
-    init(cellsPerRow: Int, minimumInteritemSpacing: CGFloat = 0, minimumLineSpacing: CGFloat = 0, sectionInset: UIEdgeInsets = .zero) {
-        self.cellsPerRow = cellsPerRow
-        super.init()
-        
-        self.minimumInteritemSpacing = minimumInteritemSpacing
-        self.minimumLineSpacing = minimumLineSpacing
-        self.sectionInset = sectionInset
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func prepare() {
-        super.prepare()
-        
-        guard let collectionView = collectionView else { return }
-        let marginsAndInsets = sectionInset.left + sectionInset.right + collectionView.safeAreaInsets.left + collectionView.safeAreaInsets.right + minimumInteritemSpacing * CGFloat(cellsPerRow - 1)
-        let itemWidth = ((collectionView.bounds.size.width - marginsAndInsets) / CGFloat(cellsPerRow)).rounded(.down)
-        itemSize = CGSize(width: itemWidth, height: itemWidth)
-    }
-    
-    override func invalidationContext(forBoundsChange newBounds: CGRect) -> UICollectionViewLayoutInvalidationContext {
-        let context = super.invalidationContext(forBoundsChange: newBounds) as! UICollectionViewFlowLayoutInvalidationContext
-        context.invalidateFlowLayoutDelegateMetrics = newBounds.size != collectionView?.bounds.size
-        return context
-    }
-    
-}
-
-class VideoCollectionViewCell: UICollectionViewCell {
-    @IBOutlet weak var imageView: UIImageView!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        imageView.contentMode = .scaleAspectFill
-    }
-}
-
 class VideosCollectionViewController: UICollectionViewController {
 
     var data = CameraData.getAllVideosDerictories()
     
+    
+    //MARK: - lifecycle
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let removeVideoItem = UIMenuItem.init(title: "Delete", action: #selector(VideoCollectionViewCell.removeVideo(_:)))
+        let saveToLibraryItem = UIMenuItem.init(title: "Save to library", action: #selector(VideoCollectionViewCell.saveToLibrary(_:)))
+        
+        UIMenuController.shared.menuItems = [removeVideoItem, saveToLibraryItem]
         
         self.collectionView!.collectionViewLayout = ColumnFlowLayout(
             cellsPerRow: 2,
@@ -72,19 +38,11 @@ class VideosCollectionViewController: UICollectionViewController {
         super.viewWillAppear(animated)
         self.navigationController?.setNavigationBarHidden(false, animated: false)
     }
+
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
     // MARK: UICollectionViewDataSource
 
+    
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -96,6 +54,8 @@ class VideosCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! VideoCollectionViewCell
         
+        cell.controller = self
+        
         if let d = try? Data.init(contentsOf: data[indexPath.row].appendingPathComponent("preview.png")) {
             cell.imageView.image = UIImage(data: d)
         }
@@ -103,8 +63,10 @@ class VideosCollectionViewController: UICollectionViewController {
         return cell
     }
 
+    
     // MARK: UICollectionViewDelegate
 
+    
     override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         let player = AVPlayer(url: data[indexPath.row].appendingPathComponent("\(data[indexPath.row].lastPathComponent).mov"))
         let playerController = AVPlayerViewController()
@@ -116,19 +78,42 @@ class VideosCollectionViewController: UICollectionViewController {
         return true
     }
 
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
+        return action == #selector(VideoCollectionViewCell.removeVideo(_:)) || action == #selector(VideoCollectionViewCell.saveToLibrary(_:))
     }
 
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {}
+
     
+    //MARK: - Menu controller actions
+    
+    
+    @objc func removeVideo(_ sender: VideoCollectionViewCell) {
+        let removeAction = UIAlertAction.init(title: "Remove", style: .default, handler: { _ in
+            print("reming video \(String(describing: self.collectionView?.indexPath(for: sender)))")
+            
+            let indexPath = self.collectionView!.indexPath(for: sender)!
+            try? CameraData.removeVideo(at: self.data[indexPath.row])
+            self.data.remove(at: indexPath.row)
+            self.collectionView!.deleteItems(at: [indexPath])
+        })
+        
+        let alertController = UIAlertController.init(title: "Warning", message: "Do u really wanna delete video?", preferredStyle: .alert)
+        
+        alertController.addAction(removeAction)
+        alertController.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
+        
+        self.present(alertController, animated: true, completion: nil)
     }
-    */
+
+    @objc func saveToLibrary(_ sender: VideoCollectionViewCell) {
+        print("saving to library \(String(describing: collectionView?.indexPath(for: sender)))")
+        let indexPath = self.collectionView!.indexPath(for: sender)!
+        CameraData.saveVideoToLibrary(videoPath: data[indexPath.row].appendingPathComponent("\(data[indexPath.row].lastPathComponent).mov").path)
+    }
 
 }
