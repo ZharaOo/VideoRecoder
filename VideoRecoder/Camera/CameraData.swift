@@ -55,7 +55,7 @@ class CameraData: NSObject {
         
         try? FileManager.default.removeItem(at: tempURL)
         
-        if let preview = try fetchFirstFrameOf(videoURL: vUrl) {
+        if let preview = try CameraData.fetchFirstFrameOf(videoURL: vUrl) {
             let data = UIImagePNGRepresentation(preview)
             try data?.write(to: URL(fileURLWithPath: directory).appendingPathComponent(name).appendingPathComponent("preview.png"))
         }
@@ -63,7 +63,11 @@ class CameraData: NSObject {
         return dUrl
     }
     
-    func fetchFirstFrameOf(videoURL url: URL) throws -> UIImage? {
+    
+    //MARK: - class methods
+    
+    
+    class func fetchFirstFrameOf(videoURL url: URL) throws -> UIImage? {
         let asset = AVURLAsset(url: url, options: nil)
         let imgGenerator = AVAssetImageGenerator(asset: asset)
         imgGenerator.appliesPreferredTrackTransform = true
@@ -78,12 +82,6 @@ class CameraData: NSObject {
             throw error
         }
     }
-    
-    
-    
-    
-    //MARK: - class methods
-    
     
     class func saveVideoToLibrary(videoPath: String, completion: @escaping (_ error: Error?) -> ()) {
         if FileManager.default.fileExists(atPath: videoPath) {
@@ -141,4 +139,6 @@ class CameraData: NSObject {
             throw error
         }
     }
+    
+    
 }

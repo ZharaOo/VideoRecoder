@@ -46,7 +46,6 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
         }
     }
     
-    
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         setupCameraLayer(with: size)
@@ -104,6 +103,7 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
     
     //MARK: - Setup camera layer
     
+    
     func setupCameraLayer(with size: CGSize) {
         controller.stopCamera()
         
@@ -118,6 +118,7 @@ class VideoViewController: UIViewController, CameraControllerDelegate {
         
         controller.runCamera()
     }
+ 
     
 }
 
