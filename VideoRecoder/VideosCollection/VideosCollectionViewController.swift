@@ -113,7 +113,31 @@ class VideosCollectionViewController: UICollectionViewController {
     @objc func saveToLibrary(_ sender: VideoCollectionViewCell) {
         print("saving to library \(String(describing: collectionView?.indexPath(for: sender)))")
         let indexPath = self.collectionView!.indexPath(for: sender)!
-        CameraData.saveVideoToLibrary(videoPath: data[indexPath.row].appendingPathComponent("\(data[indexPath.row].lastPathComponent).mov").path)
+        
+        let indicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+        indicator.color = UIColor.red
+        indicator.center = self.view.center
+        self.view.addSubview(indicator)
+        indicator.startAnimating()
+        
+        CameraData.saveVideoToLibrary(videoPath: data[indexPath.row].appendingPathComponent("\(data[indexPath.row].lastPathComponent).mov").path) { error in
+            DispatchQueue.main.async() {
+                indicator.stopAnimating()
+                indicator.removeFromSuperview()
+            }
+            
+            let ac: UIAlertController
+            
+            if let e = error {
+                ac = UIAlertController.init(title: "Saving error", message: e.localizedDescription, preferredStyle: .alert)
+            }
+            else {
+                ac = UIAlertController.init(title: "Complete saving", message: "Everything ok!)))", preferredStyle: .alert)
+            }
+            
+            ac.addAction(UIAlertAction.init(title: "Ok", style: .cancel, handler: nil))
+            self.present(ac, animated: true, completion: nil)
+        }
     }
 
 }

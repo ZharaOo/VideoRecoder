@@ -85,13 +85,16 @@ class CameraData: NSObject {
     //MARK: - class methods
     
     
-    class func saveVideoToLibrary(videoPath: String) {
+    class func saveVideoToLibrary(videoPath: String, completion: @escaping (_ error: Error?) -> ()) {
         if FileManager.default.fileExists(atPath: videoPath) {
             PHPhotoLibrary.shared().performChanges({
                 PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: URL(fileURLWithPath: videoPath))
             }) { saved, error in
                 if saved {
-                    print("saved")
+                    completion(nil)
+                }
+                else {
+                    completion(error)
                 }
             }
         }
